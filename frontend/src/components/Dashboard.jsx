@@ -3,42 +3,43 @@ import { FileText, LayoutTemplate } from "lucide-react";
 
 const Dashboard = ({ onSelect }) => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
-      <h1 className="text-4xl font-bold mb-8 text-gray-800">
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center py-16 px-4">
+      <h1 className="text-4xl font-bold text-gray-900 mb-12 tracking-tight text-center">
         What do you want to build?
       </h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl w-full">
-        {/* Simple Form Card */}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 max-w-4xl w-full">
+        {/* Simple Form */}
         <button
           onClick={() => onSelect("simple")}
-          className="flex flex-col items-center p-8 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-gray-100 hover:border-blue-500 group"
+          className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all p-10 flex flex-col items-center text-center"
         >
-          <div className="p-4 bg-blue-100 rounded-full mb-4 group-hover:bg-blue-200 transition-colors">
-            <FileText className="w-12 h-12 text-blue-600" />
+          <div className="p-5 bg-blue-50 rounded-full mb-6 group-hover:bg-blue-100 transition-colors">
+            <FileText className="w-14 h-14 text-blue-600" />
           </div>
-          <h2 className="text-2xl font-semibold mb-2 text-gray-800">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-3">
             Simple Form
           </h2>
-          <p className="text-gray-600 text-center">
-            Generate a catchy title, description, and CTA for a simple lead
-            capture form.
+          <p className="text-gray-600 leading-relaxed max-w-xs">
+            Quickly generate a clean and effective lead capture form with
+            AI‑powered content.
           </p>
         </button>
 
-        {/* Full Landing Page Card */}
+        {/* Landing Page */}
         <button
           onClick={() => onSelect("landing")}
-          className="flex flex-col items-center p-8 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-gray-100 hover:border-purple-500 group"
+          className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all p-10 flex flex-col items-center text-center"
         >
-          <div className="p-4 bg-purple-100 rounded-full mb-4 group-hover:bg-purple-200 transition-colors">
-            <LayoutTemplate className="w-12 h-12 text-purple-600" />
+          <div className="p-5 bg-purple-50 rounded-full mb-6 group-hover:bg-purple-100 transition-colors">
+            <LayoutTemplate className="w-14 h-14 text-purple-600" />
           </div>
-          <h2 className="text-2xl font-semibold mb-2 text-gray-800">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-3">
             Full Landing Page
           </h2>
-          <p className="text-gray-600 text-center">
-            Create a complete landing page with headline, features,
-            testimonials, and more.
+          <p className="text-gray-600 leading-relaxed max-w-xs">
+            Generate a complete landing page with professional copy, sections,
+            and layout ideas.
           </p>
         </button>
       </div>

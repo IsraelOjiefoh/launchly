@@ -4,6 +4,53 @@ import { ArrowLeft, Save, ExternalLink } from "lucide-react";
 const Preview = ({ content, type, onBack, onSave }) => {
   if (!content) return null;
 
+  if (type === "landing" && content.html) {
+    return (
+      <div className="min-h-screen bg-gray-100 p-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex justify-between items-center mb-6">
+            <button
+              onClick={onBack}
+              className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Back to Editor
+            </button>
+            <div className="flex gap-4">
+              <button
+                onClick={onSave}
+                className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                Save & Export
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-200">
+            {/* Browser Mockup Header */}
+            <div className="bg-gray-50 border-b border-gray-200 p-4 flex gap-2">
+              <div className="w-3 h-3 rounded-full bg-red-400"></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+              <div className="w-3 h-3 rounded-full bg-green-400"></div>
+            </div>
+
+            {/* HTML Content Preview */}
+            <div className="w-full overflow-hidden">
+              <iframe
+                srcDoc={content.html}
+                className="w-full border-0"
+                style={{ height: "600px" }}
+                sandbox="allow-same-origin allow-popups"
+                title="Landing Page Preview"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <div className="max-w-6xl mx-auto">
