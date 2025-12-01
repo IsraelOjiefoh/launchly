@@ -1,7 +1,17 @@
 import React from "react";
 import { FileText, LayoutTemplate } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useLaunch } from "../context/LaunchContext";
 
-const Dashboard = ({ onSelect }) => {
+const Dashboard = () => {
+  const navigate = useNavigate();
+  const { setSelectedType } = useLaunch();
+
+  const handleSelect = (type) => {
+    setSelectedType(type);
+    navigate("/create");
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center py-16 px-4">
       <h1 className="text-4xl font-bold text-gray-900 mb-12 tracking-tight text-center">
@@ -11,7 +21,7 @@ const Dashboard = ({ onSelect }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 max-w-4xl w-full">
         {/* Simple Form */}
         <button
-          onClick={() => onSelect("simple")}
+          onClick={() => handleSelect("simple")}
           className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all p-10 flex flex-col items-center text-center"
         >
           <div className="p-5 bg-blue-50 rounded-full mb-6 group-hover:bg-blue-100 transition-colors">
@@ -28,7 +38,7 @@ const Dashboard = ({ onSelect }) => {
 
         {/* Landing Page */}
         <button
-          onClick={() => onSelect("landing")}
+          onClick={() => handleSelect("landing")}
           className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all p-10 flex flex-col items-center text-center"
         >
           <div className="p-5 bg-purple-50 rounded-full mb-6 group-hover:bg-purple-100 transition-colors">

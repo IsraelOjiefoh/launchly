@@ -1,20 +1,60 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useLaunch } from "../context/LaunchContext";
+import axios from "axios";
 
-const InputForm = ({ type, onBack, onSubmit, isLoading }) => {
-  const [goal, setGoal] = useState("Collect Leads");
-  const [prompt, setPrompt] = useState("");
+const InputForm = () => {
+  const navigate = useNavigate();
+  const { selectedType, formData, setFormData, setGeneratedContent } =
+    useLaunch();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  // Local state for inputs, initialized from context
+  const [goal, setGoal] = useState(formData?.goal || "Collect Leads");
+  const [prompt, setPrompt] = useState(formData?.prompt || "");
+
+  useEffect(() => {
+    if (!selectedType) {
+      navigate("/");
+    }
+  }, [selectedType, navigate]);
+
+  // Update context when inputs change (optional, but good for persistence if they leave page)
+  useEffect(() => {
+    setFormData({ goal, prompt });
+  }, [goal, prompt, setFormData]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit({ type, goal, prompt });
+    setIsLoading(true);
+
+    try {
+      const backendUrl =
+        import.meta.env.VITE_BACKEND_URL ||
+        "http://localhost:3000/api/generate";
+
+      const response = await axios.post(backendUrl, {
+        type: selectedType,
+        prompt: prompt,
+        goal: goal,
+      });
+
+      setGeneratedContent(response.data);
+      navigate("/preview");
+    } catch (error) {
+      console.error("Error generating content:", error);
+      alert("Failed to generate content. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 flex flex-col items-center">
       <div className="w-full max-w-2xl">
         <button
-          onClick={onBack}
+          onClick={() => navigate("/")}
           className="flex items-center text-gray-600 hover:text-gray-900 mb-8 transition-colors"
         >
           <ArrowLeft className="w-5 h-5 mr-2" />
@@ -23,7 +63,9 @@ const InputForm = ({ type, onBack, onSubmit, isLoading }) => {
 
         <div className="bg-white rounded-xl shadow-lg p-8">
           <h2 className="text-3xl font-bold mb-6 text-gray-800">
-            {type === "simple" ? "Create Simple Form" : "Create Landing Page"}
+            {selectedType === "simple"
+              ? "Create Simple Form"
+              : "Create Landing Page"}
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -45,7 +87,7 @@ const InputForm = ({ type, onBack, onSubmit, isLoading }) => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Describe your product or service
+                Business type or purpose
               </label>
               <textarea
                 value={prompt}

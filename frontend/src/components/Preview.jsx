@@ -1,16 +1,107 @@
-import React from "react";
-import { ArrowLeft, Save, ExternalLink } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { ArrowLeft, Save } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useLaunch } from "../context/LaunchContext";
+import { supabase } from "../lib/supabaseClient";
 
-const Preview = ({ content, type, onBack, onSave }) => {
-  if (!content) return null;
+const Preview = () => {
+  const navigate = useNavigate();
+  const { generatedContent, setGeneratedContent, selectedType, formData } =
+    useLaunch();
+  const [iframeHtml, setIframeHtml] = useState("");
+  const latestContent = useRef(generatedContent);
 
-  if (type === "landing" && content.html) {
+  useEffect(() => {
+    if (!generatedContent) {
+      navigate("/create");
+      return;
+    }
+    latestContent.current = generatedContent;
+  }, [generatedContent, navigate]);
+
+  useEffect(() => {
+    if (selectedType === "landing" && generatedContent?.html) {
+      const script = `
+        <script>
+          document.addEventListener('DOMContentLoaded', () => {
+            const style = document.createElement('style');
+            style.textContent = \`
+              [contenteditable]:hover { outline: 2px dashed #3b82f6; cursor: text; }
+              [contenteditable]:focus { outline: 2px solid #2563eb; }
+            \`;
+            document.head.appendChild(style);
+
+            const elements = document.querySelectorAll('h1, h2, h3, h4, p, button, a, span, li');
+            elements.forEach(el => {
+              if (el.innerText.trim()) {
+                el.contentEditable = true;
+                el.addEventListener('input', () => {
+                   window.parent.postMessage({ type: 'content-update', html: document.documentElement.outerHTML }, '*');
+                });
+              }
+            });
+          });
+        </script>
+      `;
+      let html = generatedContent.html;
+      if (html.includes("</body>")) {
+        html = html.replace("</body>", `${script}</body>`);
+      } else {
+        html += script;
+      }
+      setIframeHtml(html);
+    }
+  }, [generatedContent, selectedType]);
+
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data.type === "content-update") {
+        const newContent = { ...latestContent.current, html: event.data.html };
+        latestContent.current = newContent;
+        // We don't update context on every keystroke to avoid re-renders,
+        // but we could if we wanted real-time persistence across refreshes while editing.
+        // For now, we'll update it when saving or leaving?
+        // Actually, let's update context on save, or maybe debounced.
+        // For simplicity, we'll just keep it in ref and update context on save.
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+
+  const handleSave = async () => {
+    if (!latestContent.current || !formData) return;
+
+    // Update context with latest edits
+    setGeneratedContent(latestContent.current);
+
+    try {
+      const { error } = await supabase.from("generated_pages").insert([
+        {
+          type: selectedType,
+          content: latestContent.current,
+          goal: formData.goal,
+          prompt: formData.prompt,
+        },
+      ]);
+
+      if (error) throw error;
+      alert("Saved successfully!");
+    } catch (error) {
+      console.error("Error saving:", error);
+      alert("Failed to save to database.");
+    }
+  };
+
+  if (!generatedContent) return null;
+
+  if (selectedType === "landing" && generatedContent.html) {
     return (
       <div className="min-h-screen bg-gray-100 p-4">
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-6">
             <button
-              onClick={onBack}
+              onClick={() => navigate("/create")}
               className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
             >
               <ArrowLeft className="w-5 h-5 mr-2" />
@@ -18,7 +109,7 @@ const Preview = ({ content, type, onBack, onSave }) => {
             </button>
             <div className="flex gap-4">
               <button
-                onClick={onSave}
+                onClick={handleSave}
                 className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
               >
                 <Save className="w-4 h-4 mr-2" />
@@ -38,10 +129,10 @@ const Preview = ({ content, type, onBack, onSave }) => {
             {/* HTML Content Preview */}
             <div className="w-full overflow-hidden">
               <iframe
-                srcDoc={content.html}
+                srcDoc={iframeHtml}
                 className="w-full border-0"
                 style={{ height: "600px" }}
-                sandbox="allow-same-origin allow-popups"
+                sandbox="allow-same-origin allow-popups allow-scripts"
                 title="Landing Page Preview"
               />
             </div>
@@ -56,7 +147,7 @@ const Preview = ({ content, type, onBack, onSave }) => {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <button
-            onClick={onBack}
+            onClick={() => navigate("/create")}
             className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
@@ -64,7 +155,7 @@ const Preview = ({ content, type, onBack, onSave }) => {
           </button>
           <div className="flex gap-4">
             <button
-              onClick={onSave}
+              onClick={handleSave}
               className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
               <Save className="w-4 h-4 mr-2" />
@@ -83,13 +174,13 @@ const Preview = ({ content, type, onBack, onSave }) => {
 
           {/* Content Preview */}
           <div className="p-8 md:p-12">
-            {type === "simple" ? (
+            {selectedType === "simple" ? (
               <div className="max-w-xl mx-auto text-center space-y-8">
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">
-                  {content.title}
+                  {generatedContent.title}
                 </h1>
                 <p className="text-xl text-gray-600 leading-relaxed">
-                  {content.description}
+                  {generatedContent.description}
                 </p>
                 <div className="bg-gray-50 p-6 rounded-xl border border-gray-100 shadow-inner">
                   <input
@@ -99,7 +190,7 @@ const Preview = ({ content, type, onBack, onSave }) => {
                     disabled
                   />
                   <button className="w-full py-4 bg-blue-600 text-white rounded-lg font-bold text-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                    {content.cta}
+                    {generatedContent.cta}
                   </button>
                   <p className="text-xs text-gray-400 mt-4">
                     We respect your privacy. Unsubscribe at any time.
@@ -111,14 +202,14 @@ const Preview = ({ content, type, onBack, onSave }) => {
                 {/* Hero Section */}
                 <div className="text-center space-y-6 max-w-4xl mx-auto">
                   <h1 className="text-5xl md:text-6xl font-black text-gray-900 tracking-tight leading-tight">
-                    {content.headline}
+                    {generatedContent.headline}
                   </h1>
                   <p className="text-2xl text-gray-600 max-w-2xl mx-auto">
-                    {content.subheadline}
+                    {generatedContent.subheadline}
                   </p>
                   <div className="flex justify-center gap-4 pt-4">
                     <button className="px-8 py-4 bg-blue-600 text-white rounded-full font-bold text-lg hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                      {content.cta}
+                      {generatedContent.cta}
                     </button>
                     <button className="px-8 py-4 bg-white text-gray-700 border border-gray-200 rounded-full font-bold text-lg hover:bg-gray-50 transition-all">
                       Learn More
@@ -128,7 +219,7 @@ const Preview = ({ content, type, onBack, onSave }) => {
 
                 {/* Features Grid */}
                 <div className="grid md:grid-cols-3 gap-8 py-12 border-t border-gray-100">
-                  {content.features?.map((feature, i) => (
+                  {generatedContent.features?.map((feature, i) => (
                     <div key={i} className="p-6 bg-gray-50 rounded-xl">
                       <div className="w-10 h-10 bg-blue-100 rounded-lg mb-4 flex items-center justify-center text-blue-600 font-bold">
                         {i + 1}
@@ -146,7 +237,7 @@ const Preview = ({ content, type, onBack, onSave }) => {
                     Trusted by Early Adopters
                   </h3>
                   <div className="grid md:grid-cols-2 gap-8">
-                    {content.testimonials?.map((t, i) => (
+                    {generatedContent.testimonials?.map((t, i) => (
                       <div key={i} className="bg-gray-800 p-8 rounded-xl">
                         <p className="text-lg italic mb-4 text-gray-300">
                           "{t.text}"

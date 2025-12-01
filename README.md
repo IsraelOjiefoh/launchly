@@ -1,81 +1,53 @@
-# AI Landing Page Generator MVP
+# Landing Page Builder MVP
 
-A full-stack MVP to generate simple forms or full landing pages using AI.
+A simple tool that generates a landing page instantly based on your input.
 
-## Tech Stack
+---
 
-- **Frontend**: React (Vite), Tailwind CSS
-- **Backend**: Node.js, Express (deployed on Render)
-- **Database**: Supabase
-- **AI**: OpenAI GPT-4
+## How it Works
 
-## Prerequisites
+1. Fill out a short form with:
 
-- Node.js installed
-- Supabase account
-- OpenAI API Key
+   - Your business type or purpose
+   - Your goal (promote a product, collect leads, etc.)
 
-## Setup Instructions
+2. The app generates a landing page with:
 
-### 1. Database (Supabase)
+   - A contact form
+   - Editable elements (hover over elements to see a tooltip and edit)
+   - Preview mode
 
-1. Create a new project in Supabase.
-2. Go to the SQL Editor and run the contents of `supabase_schema.sql`.
-3. Get your Project URL and Anon Key from Project Settings > API.
+3. Optional: Connect your social media account to match the page with **your voice and style**.
 
-### 2. Backend
+---
 
-1. Navigate to `backend/`:
-   ```bash
-   cd backend
-   ```
-2. Create a `.env` file based on `.env.example` (or just `.env` provided):
-   ```
-   OPENAI_API_KEY=your_openai_key
-   PORT=3000
-   ```
-3. Install dependencies and run:
-   ```bash
-   npm install
-   npm start
-   ```
-   The server will run on `http://localhost:3000`.
+## MVP Features
 
-### 3. Frontend
+- Input form for business type and goal
+- Automatic landing page generation
+- Contact form included
+- Preview generated page
 
-1. Navigate to `frontend/`:
-   ```bash
-   cd frontend
-   ```
-2. Create a `.env` file:
-   ```
-   VITE_SUPABASE_URL=your_supabase_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-   VITE_BACKEND_URL=http://localhost:3000/api/generate
-   ```
-3. Install dependencies and run:
-   ```bash
-   npm install
-   npm run dev
-   ```
-   The app will run on `http://localhost:5173`.
+---
 
-## Deployment
+## Next Steps
 
-### Backend (Render)
+- Make elements editable in real-time
+- Integrate social media for voice/style
+- Allow export of landing page HTML
+- Improve mobile responsiveness
 
-1. Create a new Web Service on Render.
-2. Connect your repository.
-3. Set Root Directory to `backend`.
-4. Set Build Command to `npm install`.
-5. Set Start Command to `node server.js`.
-6. Add Environment Variables (`OPENAI_API_KEY`).
+---
 
-### Frontend (Netlify)
+## Usage
 
-1. Create a new site on Netlify.
-2. Connect your repository.
-3. Set Base Directory to `frontend`.
-4. Set Build Command to `npm run build`.
-5. Set Publish Directory to `frontend/dist`.
-6. Add Environment Variables (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_BACKEND_URL` pointing to your Render URL).
+1. Open the app
+2. Fill out your business/project details
+3. Preview the landing page
+4. Edit elements if needed
+
+---
+
+## Notes
+
+This is an MVP. The goal is to validate the idea quickly, get user feedback, and improve from there.

@@ -32,6 +32,7 @@ app.post("/api/generate", async (req, res) => {
 Requirements:
 - Include a hero section with headline, subheadline, and CTA buttons
 - Add a features section with 3-4 key features
+- Include a contact form section with fields for Name, Email, and Message
 - Include a testimonials section
 - Add a footer with links
 - Use modern design with Tailwind CSS classes
