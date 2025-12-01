@@ -1,0 +1,15 @@
+# netlify.toml
+[build]
+  base    = "frontend"          # folder where your frontend lives
+  command = "npm run build"     # build command
+  publish = "frontend/dist"     # folder to publish (Vite output)
+
+# Optional: set environment variables
+[build.environment]
+  NODE_VERSION = "20"           # specify Node version if needed
+
+# Redirects / rewrites (optional, for SPA support)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
